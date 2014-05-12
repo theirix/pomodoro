@@ -35,21 +35,19 @@
 
 #pragma mark - Shortcut recorder callbacks & support
 
-- (void)switchKey: (NSString*)name forKey:(PTHotKey**)key withMethod:(SEL)method withRecorder:(SRRecorderControl*)recorder {
+- (void)switchKey: (NSString*)name forKey:(PTHotKey* __strong *)key withMethod:(SEL)method withRecorder:(SRRecorderControl*)recorder {
     
 	if (*key != nil) {
 		[[PTHotKeyCenter sharedCenter] unregisterHotKey: *key];
-		[*key release];
 		*key = nil;
 	}
 	
 	//NSLog(@"Code %d flags: %u, PT flags: %u", [recorder keyCombo].code, [recorder keyCombo].flags, [recorder cocoaToCarbonFlags: [recorder keyCombo].flags]);
     
-	*key = [[[PTHotKey alloc] initWithIdentifier:name keyCombo:[PTKeyCombo keyComboWithKeyCode:[recorder keyCombo].code modifiers:[recorder cocoaToCarbonFlags: [recorder keyCombo].flags]]] retain];
+	*key = [[PTHotKey alloc] initWithIdentifier:name keyCombo:[PTKeyCombo keyComboWithKeyCode:[recorder keyCombo].code modifiers:[recorder cocoaToCarbonFlags: [recorder keyCombo].flags]]];
 	[*key setTarget: self];
 	[*key setAction: method];
 	[[PTHotKeyCenter sharedCenter] registerHotKey: *key];
-	[*key release];
 	[[NSUserDefaults standardUserDefaults] setObject: [NSNumber numberWithShort:[recorder keyCombo].code] forKey:[NSString stringWithFormat:@"%@%@", name, @"Code"]];
 	[[NSUserDefaults standardUserDefaults] setObject: [NSNumber numberWithUnsignedInteger:[recorder keyCombo].flags] forKey:[NSString stringWithFormat:@"%@%@", name, @"Flags"]];
 	
@@ -141,17 +139,5 @@
 
 }
 
-- (void)dealloc {
-    
-    [muteKey release];
-	[startKey release];
-	[resetKey release];
-	[interruptKey release];
-    [internalInterruptKey release];
-	[resumeKey release];
-	[quickStatsKey release];
-    
-    [super dealloc];
-}
 
 @end
